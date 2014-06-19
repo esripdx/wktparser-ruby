@@ -1,4 +1,8 @@
 require "wktparser/version"
+require "wktparser/symbols"
+require "wktparser/terminals"
+require "wktparser/productions"
+require "wktparser/table"
 require "wktparser/parser"
 
 module Wktparser

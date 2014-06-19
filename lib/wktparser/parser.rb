@@ -4,10 +4,6 @@ module Wktparser
 
     def init options = {}
       @yy = {}
-      @symbols_ = {}
-      @terminals_ = {}
-      @productions = []
-      @table = []
       @lexer = Lexer.new(options)
     end
 
