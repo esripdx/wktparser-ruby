@@ -1,5 +1,7 @@
+require 'json'
+
 class Primitive
-  attr_accessor :type
+  attr_accessor :type, :properties, :coordinates
 
   def to_s
 
@@ -15,10 +17,17 @@ class Primitive
 
   end
 
+  def to_geojson
+    JSON.generate({
+      type: self.type,
+      coordinates: self.coordinates,
+      properties: self.properties
+    })
+  end
+
 end
 
 class Coordinate < Primitive
-
   attr_accessor :x, :y, :z, :m
 
   def initialize x, y, z=nil, m=nil
@@ -29,7 +38,7 @@ class Coordinate < Primitive
 end
 
 class Point < Primitive
-  attr_accessor :coordinate, :coordinates
+  attr_accessor :coordinate
 
   def initialize coordinate
     self.type = "Point"
@@ -40,20 +49,18 @@ class Point < Primitive
 end
 
 class Linestring < Primitive
-  attr_accessor :coordinates
 
   def initialize pointlist
-    self.type = "Linestring"
+    self.type = "LineString"
     self.coordinates = pointlist.coordinates
   end
 
 end
 
-class Pointlist
-
-  attr_accessor :coordinates
+class Pointlist < Primitive
 
   def initialize args
+    self.type = "Pointlist"
     self.coordinates = args
   end
 

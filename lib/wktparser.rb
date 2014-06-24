@@ -10,18 +10,18 @@ module Wktparser
     rule(:leftparen => /\(/)
     rule(:rightparen => /\)/)
     rule(:double_tok => /\-?[0-9]+(\.[0-9]+)?/).as { |num| num.to_f }
-    rule(:point_text => /POINT/) % :left
-    rule(:linestring_text => /LINESTRING/) % :left
-    rule(:polygon_text => /POLYGON/) % :left
-    rule(:multipoint_text => /MULTIPOINT/) % :left
-    rule(:multilinestring_text => /MULTILINESTRING/) % :left
-    rule(:multipolygon_text => /MULTIPOLYGON/) % :left
-    rule(:geometrycollection_text => /GEOMETRYCOLLECTION/) % :left
+    rule(:point_text => /POINT/i) % :left
+    rule(:linestring_text => /LINESTRING/i) % :left
+    rule(:polygon_text => /POLYGON/i) % :left
+    rule(:multipoint_text => /MULTIPOINT/i) % :left
+    rule(:multilinestring_text => /MULTILINESTRING/i) % :left
+    rule(:multipolygon_text => /MULTIPOLYGON/i) % :left
+    rule(:geometrycollection_text => /GEOMETRYCOLLECTION/i) % :left
     rule(:comma => /,/)
-    rule(:empty => /EMPTY/)
-    rule(:m => /M/)
-    rule(:z => /Z/)
-    rule(:zm => /ZM/)
+    rule(:empty => /EMPTY/i)
+    rule(:m => /M/i)
+    rule(:z => /Z/i)
+    rule(:zm => /ZM/i)
 
     # COORDINATE ------------------------------------------------------------
     rule(:coordinate) do |r|
@@ -30,7 +30,8 @@ module Wktparser
         Coordinate.new x, y
       end
 
-      # Y, Y, Z
+      # X, Y, Z
+      # TODO could be M not Z!
       r[:double_tok, :double_tok, :double_tok].as do |x, y, z|
         Coordinate.new x, y, z
       end
@@ -43,6 +44,12 @@ module Wktparser
 
     # POINT ------------------------------------------------------------
     rule(:point) do |r|
+
+      # POINT EMPTY
+      r[:point_text, :empty].as do |_, _|
+        Point.new Coordinate.new nil, nil
+      end
+
       # POINT
       r[:point_text, :leftparen, :coordinate, :rightparen].as do |_, _, c, _|
         Point.new c
@@ -54,10 +61,10 @@ module Wktparser
       end
 
       # POINT M
-      # Weird case, cause Coordinate doesn't know it should be m, not z...
       r[:point_text, :m, :leftparen, :coordinate, :rightparen].as do |_, _, _, c, _|
-        newc = Coordinate.new c.x, c.y, nil, c.z
-        Point.new newc
+        c.m = c.z
+        c.z = nil
+        Point.new c
       end
 
       # POINT ZM
@@ -65,10 +72,6 @@ module Wktparser
         Point.new c
       end
 
-      # POINT EMPTY
-      r[:point_text, :empty].as do |_, _|
-        Point.new Coordinate.new nil, nil
-      end
     end
 
     # POINT LIST ------------------------------------------------------------
@@ -98,9 +101,9 @@ module Wktparser
       end
 
       # LINESTRING M
-      # Weird case, cause Coordinate doesn't know it should be m, not z...
+      # BLERG TODO make this better
       r[:linestring_text, :m, :leftparen, :point_list, :rightparen].as do |_, _, _, l, _|
-        #newc = Linestring.new c.x, c.y, nil, c.z
+        l.coordinates.map{ |c| c.m = c.z; c.z = nil }
         Linestring.new l
       end
 
@@ -111,7 +114,7 @@ module Wktparser
 
       # LINESTRING EMPTY
       r[:linestring_text, :empty].as do |_, _|
-        Linestring.new Pointlist.new nil, nil
+        Linestring.new Pointlist.new nil
       end
     end
 

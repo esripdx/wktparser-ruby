@@ -15,6 +15,9 @@ describe Wktparser do
         puts file
         stuff = File.read file
         puts p.parse stuff
+
+        results = p.parse(stuff)
+        results.wont_be_nil
       end
 
     end
