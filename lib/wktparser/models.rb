@@ -29,11 +29,36 @@ class Coordinate < Primitive
 end
 
 class Point < Primitive
-  attr_accessor :coordinate
+  attr_accessor :coordinate, :coordinates
 
   def initialize coordinate
     self.type = "Point"
     self.coordinate = coordinate
+    self.coordinates = [coordinate]
+  end
+
+end
+
+class Linestring < Primitive
+  attr_accessor :coordinates
+
+  def initialize pointlist
+    self.type = "Linestring"
+    self.coordinates = pointlist.coordinates
+  end
+
+end
+
+class Pointlist
+
+  attr_accessor :coordinates
+
+  def initialize args
+    self.coordinates = args
+  end
+
+  def add_point c
+    self.coordinates << c
   end
 
 end

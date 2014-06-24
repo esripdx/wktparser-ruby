@@ -22,9 +22,8 @@ module Wktparser
     rule(:m => /M/)
     rule(:z => /Z/)
     rule(:zm => /ZM/)
-    #rule(:<<EOF>>                      # return 'EOF'
-    #rule(:invalid => /\./)                            # return "INVALID"
 
+    # COORDINATE ------------------------------------------------------------
     rule(:coordinate) do |r|
       # X, Y
       r[:double_tok, :double_tok].as do |x, y|
@@ -42,6 +41,7 @@ module Wktparser
       end
     end
 
+    # POINT ------------------------------------------------------------
     rule(:point) do |r|
       # POINT
       r[:point_text, :leftparen, :coordinate, :rightparen].as do |_, _, c, _|
@@ -71,9 +71,53 @@ module Wktparser
       end
     end
 
+    # POINT LIST ------------------------------------------------------------
+    rule(:point_list) do |r|
+      # POINT LIST
+      r[:point_list, :comma, :coordinate].as do |pl, _, c|
+        pl.add_point c
+        pl
+      end
+
+      # COORDINATE
+      r[:coordinate].as do |c|
+        Pointlist.new [c]
+      end
+    end
+
+    # LINESTRING ------------------------------------------------------------
+    rule(:linestring) do |r|
+      # LINESTRING
+      r[:linestring_text, :leftparen, :point_list, :rightparen].as do |_, _, l, _|
+        Linestring.new l
+      end
+
+      # LINESTRING Z
+      r[:linestring_text, :z, :leftparen, :point_list, :rightparen].as do |_, _, _, l, _|
+        Linestring.new l
+      end
+
+      # LINESTRING M
+      # Weird case, cause Coordinate doesn't know it should be m, not z...
+      r[:linestring_text, :m, :leftparen, :point_list, :rightparen].as do |_, _, _, l, _|
+        #newc = Linestring.new c.x, c.y, nil, c.z
+        Linestring.new l
+      end
+
+      # LINESTRING ZM
+      r[:linestring_text, :zm, :leftparen, :point_list, :rightparen].as do |_, _, _, l, _|
+        Linestring.new l
+      end
+
+      # LINESTRING EMPTY
+      r[:linestring_text, :empty].as do |_, _|
+        Linestring.new Pointlist.new nil, nil
+      end
+    end
+
     rule(:expr) do |r|
       r[:point]
-      # r[:linestring]
+      r[:linestring]
       # r[:polygon]
       # r[:multipoint]
       # r[:multilinestring]
