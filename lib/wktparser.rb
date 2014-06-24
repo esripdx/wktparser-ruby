@@ -31,7 +31,6 @@ module Wktparser
       end
 
       # X, Y, Z
-      # TODO could be M not Z!
       r[:double_tok, :double_tok, :double_tok].as do |x, y, z|
         Coordinate.new x, y, z
       end
@@ -45,8 +44,23 @@ module Wktparser
     # POINT ------------------------------------------------------------
     rule(:point) do |r|
 
-      # POINT EMPTY
+      # point empty
       r[:point_text, :empty].as do |_, _|
+        Point.new Coordinate.new nil, nil
+      end
+
+      # point z empty
+      r[:point_text,:z, :empty].as do |_, _|
+        Point.new Coordinate.new nil, nil
+      end
+
+      # point m empty
+      r[:point_text, :m, :empty].as do |_, _|
+        Point.new Coordinate.new nil, nil
+      end
+
+      # point zm empty
+      r[:point_text,:zm, :empty].as do |_, _|
         Point.new Coordinate.new nil, nil
       end
 
@@ -114,6 +128,21 @@ module Wktparser
 
       # LINESTRING EMPTY
       r[:linestring_text, :empty].as do |_, _|
+        Linestring.new Pointlist.new nil
+      end
+      
+      # LINESTRING Z EMPTY
+      r[:linestring_text, :z, :empty].as do |_, _|
+        Linestring.new Pointlist.new nil
+      end
+
+      # LINESTRING M EMPTY
+      r[:linestring_text, :m, :empty].as do |_, _|
+        Linestring.new Pointlist.new nil
+      end
+
+      # LINESTRING ZM EMPTY
+      r[:linestring_text, :zm, :empty].as do |_, _|
         Linestring.new Pointlist.new nil
       end
     end
