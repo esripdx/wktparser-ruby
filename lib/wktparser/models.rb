@@ -1,6 +1,6 @@
 class Primitive
   attr_accessor :type
-  
+
   def to_s
 
     description = "( #{self.type} => "

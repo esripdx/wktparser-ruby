@@ -54,7 +54,14 @@ module Wktparser
       end
 
       # POINT M
+      # Weird case, cause Coordinate doesn't know it should be m, not z...
       r[:point_text, :m, :leftparen, :coordinate, :rightparen].as do |_, _, _, c, _|
+        newc = Coordinate.new c.x, c.y, nil, c.z
+        Point.new newc
+      end
+
+      # POINT ZM
+      r[:point_text, :zm, :leftparen, :coordinate, :rightparen].as do |_, _, _, c, _|
         Point.new c
       end
 
