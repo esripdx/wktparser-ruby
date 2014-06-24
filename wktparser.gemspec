@@ -7,13 +7,15 @@ Gem::Specification.new do |gem|
   gem.name          = "wktparser"
   gem.version       = Wktparser::VERSION
   gem.authors       = ["Jen Oslislo"]
-  gem.email         = ["poeksweb@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.email         = ["joslislo@esri.com"]
+  gem.description   = %q{Well Known Text parser}
+  gem.summary       = %q{Parse Well Known Text into Ruby objects}
+  gem.homepage      = "https://github.com/esripdx/wktparser-ruby"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
+  gem.add_dependency 'whittle'
+  gem.add_development_dependency 'minitest'
 end
