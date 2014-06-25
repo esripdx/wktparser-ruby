@@ -1,6 +1,7 @@
 # Wktparser
 
-TODO: Write a gem description
+It's a Well Known Text parser that sucks up WKT and output GeoJSON or Ruby
+objects!
 
 ## Installation
 
