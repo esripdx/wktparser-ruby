@@ -14,6 +14,7 @@ describe Wktparser do
       Dir.glob("#{root}/examples/*.wkt").each do |file|
         stuff = File.read file
         results = p.parse(stuff)
+        puts results
         results.wont_be_nil
       end
 

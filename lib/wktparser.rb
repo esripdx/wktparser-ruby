@@ -105,7 +105,7 @@ module Wktparser
     # RING ------------------------------------------------------------
     rule(:ring) do |r|
       # RING
-      r[:point_text, :leftparen, :point_list, :rightparen].as do |_, _, c, _|
+      r[:leftparen, :point_list, :rightparen].as do |_, c, _|
         Ring.new c
       end
     end
@@ -172,25 +172,25 @@ module Wktparser
     # POLYGON ------------------------------------------------------------
     rule(:polygon) do |r|
       # POLYGON
-      r[:polygon_text, :leftparen, :ring_list, :rightparen].as do |_, _, l, _|
-        Polygon.new l
+      r[:polygon_text, :leftparen, :ring_list, :rightparen].as do |_, _, rl, _|
+        Polygon.new rl
       end
 
       # POLYGON Z
-      r[:polygon_text, :z, :leftparen, :ring_list, :rightparen].as do |_, _, _, l, _|
-        Polygon.new l
+      r[:polygon_text, :z, :leftparen, :ring_list, :rightparen].as do |_, _, _, rl, _|
+        Polygon.new rl
       end
 
       # POLYGON M
       # BLERG TODO make this better
-      r[:polygon_text, :m, :leftparen, :ring_list, :rightparen].as do |_, _, _, l, _|
+      r[:polygon_text, :m, :leftparen, :ring_list, :rightparen].as do |_, _, _, rl, _|
         # FIXME l.coordinates.map{ |c| c.m = c.z; c.z = nil }
-        Polygon.new l
+        Polygon.new rl
       end
 
       # POLYGON ZM
-      r[:polygon_text, :zm, :leftparen, :ring_list, :rightparen].as do |_, _, _, l, _|
-        Polygon.new l
+      r[:polygon_text, :zm, :leftparen, :ring_list, :rightparen].as do |_, _, _, rl, _|
+        Polygon.new rl
       end
 
       # POLYGON EMPTY
@@ -217,7 +217,7 @@ module Wktparser
     rule(:expr) do |r|
       r[:point]
       r[:linestring]
-      # r[:polygon]
+      r[:polygon]
       # r[:multipoint]
       # r[:multilinestring]
       # r[:multipolygon]

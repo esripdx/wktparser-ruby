@@ -5,13 +5,15 @@ class Primitive
 
   def to_s
 
-    description = "( #{self.type} => "
-    self.instance_variables.sort.each do |i|
-      i = i.to_s.reverse.chop.reverse
-      res = self.send i
-      description += "#{i}: #{res} " if res and i != "type"
-    end
-    description += ")"
+    description = "#<#{self.type} => "
+    description += self.coordinates.to_s
+
+    # self.instance_variables.sort.each do |i|
+    #   i = i.to_s.reverse.chop.reverse
+    #   res = self.send i
+    #   description += "#{i}: #{res} " if res and i != "type"
+    # end
+    description += ">"
 
     description
 
@@ -82,33 +84,43 @@ class Pointlist < Primitive
 
 end
 
-class Ring < Point
+class Ring < Primitive
 
-  def initialize coordinate
-    super
+  def initialize pointlist
     self.type = "Ring"
+    self.coordinates = pointlist.coordinates
+  end
+
+  def add_point c
+    self.coordinates << c
   end
 
 end
 
 class Ringlist < Primitive
 
-  def initialize args
+  attr_accessor :rings
+
+  def initialize rings
     self.type = "Ringlist"
-    self.coordinates = args
+    self.rings = rings
   end
 
   def add_ring r
-    self.coordinates << r
+    self.rings << r
   end
 
 end
 
 class Polygon < Primitive
 
-  def initialize coordinates
+  attr_accessor :rings, :holes
+
+  def initialize ringlist
     self.type = "Polygon"
-    self.coordinates = coordinates
+    self.coordinates = ringlist.rings.collect { |ring| ring.coordinates } # Kinda janky
+    self.rings = ringlist.rings
+    self.holes = ringlist.rings[1..ringlist.rings.size] if ringlist.rings.size > 1
   end
 
 end
