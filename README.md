@@ -28,7 +28,11 @@ Or install it yourself as:
     puts results.to_geojson # {"type":"Point","coordinates":[10.05,10.28]}
 
     # Linestrings!
-    TODO
+    stuff = 'linestring (10.05 10.28 , 20.95 20.89 )'
+    p = Wktparser::Whittler.new
+    results =  p.parse stuff # #<Linestring:0x000001010da050 @type="LineString", @coordinates=[#<Coordinate:0x000001010d3a20 @type="Coordinate", @x=10.05, @y=10.28, @z=nil, @m=nil>, #<Coordinate:0x000001010da1e0 @type="Coordinate", @x=20.95, @y=20.89, @z=nil, @m=nil>]
+    puts results.coordinates # ( Coordinate => x: 10.05 y: 10.28 ) ( Coordinate => x: 20.95 y: 20.89 )
+    puts results.to_geojson # {"type":"LineString","coordinates":[[10.05,10.28],[20.95,20.89]]}
 
     # Polygons!
     TODO
