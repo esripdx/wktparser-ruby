@@ -12,10 +12,7 @@ describe Wktparser do
       p = Wktparser::Whittler.new
       root = File.expand_path File.join File.dirname(__FILE__), '..'
       Dir.glob("#{root}/examples/*.wkt").each do |file|
-        puts file
         stuff = File.read file
-        puts p.parse stuff
-
         results = p.parse(stuff)
         results.wont_be_nil
       end

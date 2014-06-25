@@ -65,25 +65,25 @@ module Wktparser
       end
 
       # POINT
-      r[:point_text, :leftparen, :coordinate, :rightparen].as do |_, _, c, _|
-        Point.new c
+      r[:point_text, :leftparen, :point_list, :rightparen].as do |_, _, c, _|
+        Point.new c.coordinates[0]
       end
 
       # POINT Z
-      r[:point_text, :z, :leftparen, :coordinate, :rightparen].as do |_, _, _, c, _|
-        Point.new c
+      r[:point_text, :z, :leftparen, :point_list, :rightparen].as do |_, _, _, c, _|
+        Point.new c.coordinates[0]
       end
 
       # POINT M
-      r[:point_text, :m, :leftparen, :coordinate, :rightparen].as do |_, _, _, c, _|
-        c.m = c.z
-        c.z = nil
-        Point.new c
+      r[:point_text, :m, :leftparen, :point_list, :rightparen].as do |_, _, _, c, _|
+        c.coordinates[0].m = c.coordinates[0].z
+        c.coordinates[0].z = nil
+        Point.new c.coordinates[0]
       end
 
       # POINT ZM
-      r[:point_text, :zm, :leftparen, :coordinate, :rightparen].as do |_, _, _, c, _|
-        Point.new c
+      r[:point_text, :zm, :leftparen, :point_list, :rightparen].as do |_, _, _, c, _|
+        Point.new c.coordinates[0]
       end
 
     end
@@ -99,6 +99,28 @@ module Wktparser
       # COORDINATE
       r[:coordinate].as do |c|
         Pointlist.new [c]
+      end
+    end
+
+    # RING ------------------------------------------------------------
+    rule(:ring) do |r|
+      # RING
+      r[:point_text, :leftparen, :point_list, :rightparen].as do |_, _, c, _|
+        Ring.new c
+      end
+    end
+
+    # RING LIST ------------------------------------------------------------
+    rule(:ring_list) do |r|
+      # RING LIST
+      r[:ring_list, :comma, :ring].as do |rl, _, r|
+        rl.add_ring r
+        rl
+      end
+
+      # RING
+      r[:ring].as do |r|
+        Ringlist.new [r]
       end
     end
 
@@ -144,6 +166,51 @@ module Wktparser
       # LINESTRING ZM EMPTY
       r[:linestring_text, :zm, :empty].as do |_, _|
         Linestring.new Pointlist.new nil
+      end
+    end
+
+    # POLYGON ------------------------------------------------------------
+    rule(:polygon) do |r|
+      # POLYGON
+      r[:polygon_text, :leftparen, :ring_list, :rightparen].as do |_, _, l, _|
+        Polygon.new l
+      end
+
+      # POLYGON Z
+      r[:polygon_text, :z, :leftparen, :ring_list, :rightparen].as do |_, _, _, l, _|
+        Polygon.new l
+      end
+
+      # POLYGON M
+      # BLERG TODO make this better
+      r[:polygon_text, :m, :leftparen, :ring_list, :rightparen].as do |_, _, _, l, _|
+        # FIXME l.coordinates.map{ |c| c.m = c.z; c.z = nil }
+        Polygon.new l
+      end
+
+      # POLYGON ZM
+      r[:polygon_text, :zm, :leftparen, :ring_list, :rightparen].as do |_, _, _, l, _|
+        Polygon.new l
+      end
+
+      # POLYGON EMPTY
+      r[:polygon_text, :empty].as do |_, _|
+        Polygon.new Ringlist.new nil
+      end
+      
+      # POLYGON Z EMPTY
+      r[:polygon_text, :z, :empty].as do |_, _|
+        Polygon.new Ringlist.new nil
+      end
+
+      # POLYGON M EMPTY
+      r[:polygon_text, :m, :empty].as do |_, _|
+        Polygon.new Ringlist.new nil
+      end
+
+      # POLYGON ZM EMPTY
+      r[:polygon_text, :zm, :empty].as do |_, _|
+        Polygon.new Ringlist.new nil
       end
     end
 

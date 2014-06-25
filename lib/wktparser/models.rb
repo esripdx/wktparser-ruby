@@ -69,3 +69,34 @@ class Pointlist < Primitive
   end
 
 end
+
+class Ring < Point
+
+  def initialize coordinate
+    super
+    self.type = "Ring"
+  end
+
+end
+
+class Ringlist < Primitive
+
+  def initialize args
+    self.type = "Ringlist"
+    self.coordinates = args
+  end
+
+  def add_ring r
+    self.coordinates << r
+  end
+
+end
+
+class Polygon < Primitive
+
+  def initialize coordinates
+    self.type = "Polygon"
+    self.coordinates = coordinates
+  end
+
+end
