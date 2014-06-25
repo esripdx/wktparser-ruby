@@ -18,11 +18,19 @@ class Primitive
   end
 
   def to_geojson
-    JSON.generate({
+    if self.class == Point
+      coords = self.coordinate.to_geojson
+    else
+      coords = self.coordinates.collect {|c| c.to_geojson}
+    end
+
+    propz = {
       type: self.type,
-      coordinates: self.coordinates,
-      properties: self.properties
-    })
+      coordinates: coords
+    }
+    propz[:properties] = self.properties if self.properties
+
+    JSON.generate propz
   end
 
 end
@@ -33,6 +41,10 @@ class Coordinate < Primitive
   def initialize x, y, z=nil, m=nil
     self.type = "Coordinate"
     self.x, self.y, self.z, self.m = x, y, z, m
+  end
+
+  def to_geojson
+    [self.x, self.y]
   end
 
 end

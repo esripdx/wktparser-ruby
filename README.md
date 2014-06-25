@@ -18,7 +18,19 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    # Points!
+    stuff = 'point ( 10.05 10.28 )'
+    p = Wktparser::Whittler.new
+    results = p.parse stuff # #<Point:0x0000010192fdb8 @type="Point", @coordinate=#<Coordinate:0x0000010192fcf0 @type="Coordinate", @x=10.05, @y=10.28, @z=nil, @m=nil>, coordinates[#<Coordinate:0x0000010192fcf0 @type="Coordinate", @x=10.05, @y=10.28, @z=nil, @m=nil>
+    puts results.coordinate.x # 10.05
+    puts results.coordinate.y # 10.28
+    puts results.to_geojson # {"type":"Point","coordinates":[10.05,10.28]}
+
+    # Linestrings!
+    TODO
+
+    # Polygons!
+    TODO
 
 ## Contributing
 

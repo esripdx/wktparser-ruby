@@ -93,6 +93,18 @@ describe 'Primitives' do
       results.wont_be_nil
     end
 
+    it 'must output geojson' do
+      stuff = 'point ( 10.05 10.28 )'
+      p = Wktparser::Whittler.new
+      results =  p.parse stuff
+      results.class.must_equal Point
+      results.coordinate.x.must_equal 10.05
+      results.coordinate.y.must_equal 10.28
+      geojson = results.to_geojson
+      geojson.must_equal %{{"type":"Point","coordinates":[10.05,10.28]}}
+      results.wont_be_nil
+    end
+
   end
 
 end
