@@ -1,6 +1,6 @@
 # Wktparser
 
-It's a Well Known Text parser that sucks up WKT and output GeoJSON or Ruby
+It's a Well Known Text parser that sucks up WKT and outputs GeoJSON or Ruby
 objects!
 
 ## Installation
