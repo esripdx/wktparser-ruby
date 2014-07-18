@@ -48,6 +48,7 @@ describe 'Primitives' do
       p = Wktparser::Whittler.new
       results =  p.parse stuff
       results.class.must_equal Linestring
+      puts "Linetstring #{results}"
       results.coordinates[0].x.must_equal 10.05
       results.coordinates[1].x.must_equal 20.95
       results.coordinates[0].y.must_equal 10.28

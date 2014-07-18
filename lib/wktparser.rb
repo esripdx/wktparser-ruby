@@ -27,17 +27,53 @@ module Wktparser
     rule(:coordinate) do |r|
       # X, Y
       r[:double_tok, :double_tok].as do |x, y|
-        Coordinate.new x, y
+        PointArray.new([Coordinate.new(x, y)])
       end
 
       # X, Y, Z
       r[:double_tok, :double_tok, :double_tok].as do |x, y, z|
-        Coordinate.new x, y, z
+        PointArray.new([Coordinate.new(x, y, z)])
       end
 
       # X, Y, Z, M
       r[:double_tok, :double_tok, :double_tok, :double_tok].as do |x, y, z, m|
-        Coordinate.new x, y, z, m
+        PointArray.new([Coordinate.new(x, y, z, m)])
+      end
+    end
+
+    # PTARRAY ------------------------------------------------------------
+    rule(:ptarray) do |r|
+      # PTARRAY
+      r[:ptarray, :comma, :coordinate].as do |pt, _, coord|
+        pt.add_point coord
+        pt
+      end
+
+      # COORDINATE
+      r[:coordinate].as do |coord|
+        coord
+      end
+    end
+
+    # RING LIST ------------------------------------------------------------
+    rule(:ring_list) do |r|
+      # RING LIST
+      r[:ring_list, :comma, :ring].as do |rl, _, r|
+        rl.add_ring r
+        rl
+      end
+
+      # RING
+      r[:ring].as do |r|
+        Ringlist.new [r]
+      end
+    end
+
+    # RING ------------------------------------------------------------
+    rule(:ring) do |r|
+      # RING
+      r[:leftparen, :ptarray, :rightparen].as do |_, c, _|
+        Ring.new c
       end
     end
 
@@ -65,107 +101,85 @@ module Wktparser
       end
 
       # POINT
-      r[:point_text, :leftparen, :point_list, :rightparen].as do |_, _, c, _|
+      r[:point_text, :leftparen, :ptarray, :rightparen].as do |_, _, c, _|
         Point.new c.coordinates[0]
       end
 
       # POINT Z
-      r[:point_text, :z, :leftparen, :point_list, :rightparen].as do |_, _, _, c, _|
+      r[:point_text, :z, :leftparen, :ptarray, :rightparen].as do |_, _, _, c, _|
         Point.new c.coordinates[0]
       end
 
       # POINT M
-      r[:point_text, :m, :leftparen, :point_list, :rightparen].as do |_, _, _, c, _|
+      r[:point_text, :m, :leftparen, :ptarray, :rightparen].as do |_, _, _, c, _|
         c.coordinates[0].m = c.coordinates[0].z
         c.coordinates[0].z = nil
         Point.new c.coordinates[0]
       end
 
       # POINT ZM
-      r[:point_text, :zm, :leftparen, :point_list, :rightparen].as do |_, _, _, c, _|
+      r[:point_text, :zm, :leftparen, :ptarray, :rightparen].as do |_, _, _, c, _|
         Point.new c.coordinates[0]
       end
 
     end
 
-    # POINT LIST ------------------------------------------------------------
-    rule(:point_list) do |r|
-      # POINT LIST
-      r[:point_list, :comma, :coordinate].as do |pl, _, c|
-        pl.add_point c
-        pl
-      end
+    # POINT UNTAGGED - what is this? ------------------------------------------------------------
+    rule(:point_untagged) do |r|
 
-      # COORDINATE
       r[:coordinate].as do |c|
-        Pointlist.new [c]
-      end
-    end
-
-    # RING ------------------------------------------------------------
-    rule(:ring) do |r|
-      # RING
-      r[:leftparen, :point_list, :rightparen].as do |_, c, _|
-        Ring.new c
-      end
-    end
-
-    # RING LIST ------------------------------------------------------------
-    rule(:ring_list) do |r|
-      # RING LIST
-      r[:ring_list, :comma, :ring].as do |rl, _, r|
-        rl.add_ring r
-        rl
+        c
       end
 
-      # RING
-      r[:ring].as do |r|
-        Ringlist.new [r]
+      r[:leftparen, :coordinate, :rightparen].as do |c|
+        c
       end
+
     end
 
     # LINESTRING ------------------------------------------------------------
     rule(:linestring) do |r|
       # LINESTRING
-      r[:linestring_text, :leftparen, :point_list, :rightparen].as do |_, _, l, _|
-        Linestring.new l
+      r[:linestring_text, :leftparen, :ptarray, :rightparen].as do |_, _, l, _|
+        Linestring.new l.coordinates
       end
 
       # LINESTRING Z
-      r[:linestring_text, :z, :leftparen, :point_list, :rightparen].as do |_, _, _, l, _|
-        Linestring.new l
+      r[:linestring_text, :z, :leftparen, :ptarray, :rightparen].as do |_, _, _, l, _|
+        Linestring.new l.coordinates
       end
 
       # LINESTRING M
       # BLERG TODO make this better
-      r[:linestring_text, :m, :leftparen, :point_list, :rightparen].as do |_, _, _, l, _|
+      r[:linestring_text, :m, :leftparen, :ptarray, :rightparen].as do |_, _, _, l, _|
+        puts "LS coords m #{l.coordinates}"
         l.coordinates.map{ |c| c.m = c.z; c.z = nil }
-        Linestring.new l
+        Linestring.new l.coordinates
       end
 
       # LINESTRING ZM
-      r[:linestring_text, :zm, :leftparen, :point_list, :rightparen].as do |_, _, _, l, _|
-        Linestring.new l
+      r[:linestring_text, :zm, :leftparen, :ptarray, :rightparen].as do |_, _, _, l, _|
+        Linestring.new l.coordinates
       end
 
       # LINESTRING EMPTY
       r[:linestring_text, :empty].as do |_, _|
-        Linestring.new Pointlist.new nil
+        Linestring.new PointArray.new nil
       end
-      
+
       # LINESTRING Z EMPTY
       r[:linestring_text, :z, :empty].as do |_, _|
-        Linestring.new Pointlist.new nil
+        Linestring.new PointArray.new nil
       end
 
       # LINESTRING M EMPTY
       r[:linestring_text, :m, :empty].as do |_, _|
-        Linestring.new Pointlist.new nil
+        Linestring.new PointArray.new nil
       end
 
       # LINESTRING ZM EMPTY
       r[:linestring_text, :zm, :empty].as do |_, _|
-        Linestring.new Pointlist.new nil
+        Linestring.new PointArray.new nil
       end
     end
 
@@ -197,7 +211,7 @@ module Wktparser
       r[:polygon_text, :empty].as do |_, _|
         Polygon.new Ringlist.new nil
       end
-      
+
       # POLYGON Z EMPTY
       r[:polygon_text, :z, :empty].as do |_, _|
         Polygon.new Ringlist.new nil

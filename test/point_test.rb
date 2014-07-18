@@ -11,6 +11,7 @@ describe 'Primitives' do
       stuff = "point empty"
       p = Wktparser::Whittler.new
       results =  p.parse stuff
+      puts results
       results.class.must_equal Point
       results.coordinate.x.must_be_nil
       results.coordinate.y.must_be_nil

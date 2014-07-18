@@ -3,6 +3,10 @@ require 'json'
 class Primitive
   attr_accessor :type, :properties, :coordinates
 
+end
+
+class Geojsonable < Primitive
+
   def to_s
 
     description = "#<#{self.type} => "
@@ -51,30 +55,10 @@ class Coordinate < Primitive
 
 end
 
-class Point < Primitive
-  attr_accessor :coordinate
-
-  def initialize coordinate
-    self.type = "Point"
-    self.coordinate = coordinate
-    self.coordinates = [coordinate]
-  end
-
-end
-
-class Linestring < Primitive
-
-  def initialize pointlist
-    self.type = "LineString"
-    self.coordinates = pointlist.coordinates
-  end
-
-end
-
-class Pointlist < Primitive
+class PointArray < Primitive
 
   def initialize args
-    self.type = "Pointlist"
+    self.type = "PointArray"
     self.coordinates = args
   end
 
@@ -86,9 +70,9 @@ end
 
 class Ring < Primitive
 
-  def initialize pointlist
+  def initialize pointarray
     self.type = "Ring"
-    self.coordinates = pointlist.coordinates
+    self.coordinates = pointarray
   end
 
   def add_point c
@@ -112,7 +96,27 @@ class Ringlist < Primitive
 
 end
 
-class Polygon < Primitive
+class Point < Geojsonable
+  attr_accessor :coordinate
+
+  def initialize coordinate
+    self.type = "Point"
+    self.coordinate = coordinate
+    self.coordinates = [coordinate]
+  end
+
+end
+
+class Linestring < Geojsonable
+
+  def initialize pointarray
+    self.type = "LineString"
+    self.coordinates = pointarray
+  end
+
+end
+
+class Polygon < Geojsonable
 
   attr_accessor :rings, :holes
 
